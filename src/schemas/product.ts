@@ -57,5 +57,8 @@ export const AllProductsSchema = z.object({
   limit: z.number(),
 });
 
+export type SingleProductInAllProducts = z.infer<
+  typeof SingleProductInAllProducts
+>;
 export type Product = z.infer<typeof ProductSchema>;
 export type AllProducts = z.infer<typeof AllProductsSchema>;

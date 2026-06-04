@@ -2,15 +2,7 @@
 
 import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  Box,
-  Container,
-  Heading,
-  HStack,
-  Image,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
+import { Container, Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import { useProducts, useCategories } from "@/hooks/use-products";
 import { FilterBar } from "@/components/FilterBar";
 import { LimitSelect } from "@/components/LimitSelect";
@@ -21,6 +13,7 @@ import {
   type ProductsParams,
   type Limit,
 } from "@/lib/api";
+import { ProductItem } from "@/components/ProductItem";
 
 const DEFAULT_PARAMS: ProductsParams = {
   limit: 10,
@@ -121,28 +114,7 @@ function HomeContent() {
         )}
 
         {response?.products?.map((product) => (
-          <HStack
-            key={product.id}
-            p={4}
-            borderWidth="1px"
-            borderRadius="lg"
-            gap={4}
-          >
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              boxSize="80px"
-              objectFit="cover"
-              borderRadius="md"
-            />
-            <Box flex={1}>
-              <Heading size="sm">{product.title}</Heading>
-              <Text fontSize="sm" color="fg.muted">
-                {product.category}
-              </Text>
-            </Box>
-            <Text fontWeight="bold">${product.price}</Text>
-          </HStack>
+          <ProductItem key={product.id} product={product} />
         ))}
         <HStack align="center" justify="space-between">
           <PaginationBar
