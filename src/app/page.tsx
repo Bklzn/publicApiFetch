@@ -2,18 +2,19 @@
 
 import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Container, Heading, HStack, Text, VStack } from "@chakra-ui/react";
+import { Flex, Box, Heading, Text, HStack, VStack } from "@chakra-ui/react";
 import { useProducts, useCategories } from "@/hooks/use-products";
 import { FilterBar } from "@/components/FilterBar";
 import { LimitSelect } from "@/components/LimitSelect";
 import { PaginationBar } from "@/components/PaginationBar";
+import { ProductItem } from "@/components/ProductItem";
+import { ProductDetails } from "@/components/ProductDetails";
 import {
   parsePage,
   parseLimit,
   type ProductsParams,
   type Limit,
 } from "@/lib/api";
-import { ProductItem } from "@/components/ProductItem";
 
 const DEFAULT_PARAMS: ProductsParams = {
   limit: 10,
@@ -43,6 +44,8 @@ function HomeContent() {
   const [params, setParams] = useState<ProductsParams>(() =>
     parseParams(searchParams),
   );
+
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const syncUrl = useCallback(
     (next: ProductsParams) => {
@@ -85,6 +88,10 @@ function HomeContent() {
     [params, syncUrl],
   );
 
+  const handleSelect = useCallback((id: number) => {
+    setSelectedId((prev) => (prev === id ? null : id));
+  }, []);
+
   const { data: response, isLoading, error } = useProducts(params);
   const { data: categories } = useCategories();
 
@@ -93,49 +100,75 @@ function HomeContent() {
     : 0;
 
   return (
-    <Container maxW="4xl" py={10}>
-      <VStack gap={6} align="stretch">
-        <Heading size="3xl">publicApiFetch</Heading>
+    <Flex maxW="100%" mx={0} px={4}>
+      <Box flex="1" minW={0} maxW="4xl" marginX="auto" paddingRight={4} py={10}>
+        <VStack gap={6} align="stretch">
+          <Heading size="3xl">publicApiFetch</Heading>
 
-        <Text color="fg.muted">
-          Next.js + TanStack Query + Chakra UI v3 + Zod
-        </Text>
+          <Text color="fg.muted">
+            Next.js + TanStack Query + Chakra UI v3 + Zod
+          </Text>
 
-        <FilterBar
-          params={params}
-          onChange={handleChange}
-          categories={categories ?? []}
-        />
-
-        {isLoading && <Text>Loading products...</Text>}
-
-        {error && (
-          <Text color="red.500">Error: {(error as Error).message}</Text>
-        )}
-
-        {response?.products?.map((product) => (
-          <ProductItem key={product.id} product={product} />
-        ))}
-        <HStack align="center" justify="space-between">
-          <PaginationBar
-            page={params.page ?? 1}
-            totalPages={totalPages}
-            onChange={handlePageChange}
+          <FilterBar
+            params={params}
+            onChange={handleChange}
+            categories={categories ?? []}
           />
-          <HStack>
-            <LimitSelect
-              value={(params.limit as Limit) ?? 10}
-              onChange={handleLimitChange}
+
+          {isLoading && <Text>Loading products...</Text>}
+
+          {error && (
+            <Text color="red.500">Error: {(error as Error).message}</Text>
+          )}
+
+          {response?.products?.map((product) => (
+            <ProductItem
+              key={product.id}
+              product={product}
+              onSelect={handleSelect}
+              isSelected={selectedId === product.id}
             />
-            {response && (
-              <Text fontSize="sm" color="fg.muted" textWrap="nowrap">
-                of {response.total} products
-              </Text>
-            )}
-          </HStack>
-        </HStack>
-      </VStack>
-    </Container>
+          ))}
+
+          {response && (
+            <HStack align="center" justify="space-between">
+              <PaginationBar
+                page={params.page ?? 1}
+                totalPages={totalPages}
+                onChange={handlePageChange}
+              />
+              <HStack>
+                <LimitSelect
+                  value={(params.limit as Limit) ?? 10}
+                  onChange={handleLimitChange}
+                />
+                <Text fontSize="sm" color="fg.muted" textWrap="nowrap">
+                  of {response.total} products
+                </Text>
+              </HStack>
+            </HStack>
+          )}
+        </VStack>
+      </Box>
+
+      <Box
+        as="aside"
+        style={{
+          maxWidth: selectedId ? "30vw" : "0px",
+          transition: "max-width 0.4s ease",
+          overflow: selectedId ? undefined : "hidden",
+          position: "sticky",
+          top: 0,
+          height: "100dvh",
+        }}
+        borderLeftWidth={selectedId ? "1px" : "0px"}
+        borderColor="border"
+      >
+        <Box w="30vw" h="100dvh" overflowY="auto" py={10} pl={6} pr={4}>
+          <ProductDetails productId={selectedId} />
+        </Box>
+      </Box>
+    </Flex>
   );
 }
 

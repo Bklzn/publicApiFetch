@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { AllProductsSchema, AllProducts } from "@/schemas/product";
+import {
+  AllProductsSchema,
+  AllProducts,
+  ProductSchema,
+  Product,
+} from "@/schemas/product";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
@@ -61,6 +66,13 @@ export async function fetchProducts(
   if (!res.ok) throw new Error("Failed to fetch products");
   const data = await res.json();
   return AllProductsSchema.parse(data);
+}
+
+export async function fetchProductById(id: number): Promise<Product> {
+  const res = await fetch(`${API_URL}/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch product");
+  const data = await res.json();
+  return ProductSchema.parse(data);
 }
 
 export async function fetchCategories(): Promise<string[]> {

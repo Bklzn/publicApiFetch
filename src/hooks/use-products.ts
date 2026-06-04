@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchProducts, fetchCategories, ProductsParams } from "@/lib/api";
-import { AllProducts } from "@/schemas/product";
+import {
+  fetchProducts,
+  fetchCategories,
+  fetchProductById,
+  ProductsParams,
+} from "@/lib/api";
+import { AllProducts, Product } from "@/schemas/product";
 
 const DEFAULTS: ProductsParams = {
   limit: 10,
@@ -14,6 +19,14 @@ export function useProducts(params?: ProductsParams) {
   return useQuery({
     queryKey: ["products", merged],
     queryFn: (): Promise<AllProducts> => fetchProducts(merged),
+  });
+}
+
+export function useProduct(id: number | null) {
+  return useQuery({
+    queryKey: ["product", id],
+    queryFn: (): Promise<Product> => fetchProductById(id!),
+    enabled: id != null,
   });
 }
 
