@@ -10,6 +10,12 @@ export function useProducts(params?: ProductsParams) {
   return useQuery({
     queryKey: productKeys.all,
     queryFn: (): Promise<AllProducts> =>
-      fetchProducts(params ?? { limit: 10, page: 1 }),
+      fetchProducts(
+        params ?? {
+          limit: 10,
+          page: 1,
+          select: "id,title,category,thumbnail,price",
+        },
+      ),
   });
 }

@@ -42,8 +42,16 @@ export const ProductSchema = z.object({
   images: z.array(z.string()),
 });
 
+const SingleProductInAllProducts = ProductSchema.pick({
+  id: true,
+  title: true,
+  category: true,
+  price: true,
+  thumbnail: true,
+});
+
 export const AllProductsSchema = z.object({
-  products: z.array(ProductSchema),
+  products: z.array(SingleProductInAllProducts),
   total: z.number(),
   skip: z.number(),
   limit: z.number(),
