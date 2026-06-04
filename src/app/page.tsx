@@ -53,10 +53,15 @@ function HomeContent() {
     parseParams(searchParams),
   );
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(() => {
+    const raw = searchParams?.get("id");
+    if (!raw) return null;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  });
 
   const syncUrl = useCallback(
-    (next: ProductsParams) => {
+    (next: ProductsParams, selectedId: number | null) => {
       const sp = new URLSearchParams();
       if (next.q) sp.set("q", next.q);
       if (next.category) sp.set("category", next.category);
@@ -64,6 +69,7 @@ function HomeContent() {
       if (next.order) sp.set("order", next.order);
       if (next.page && next.page > 1) sp.set("page", String(next.page));
       if (next.limit && next.limit !== 10) sp.set("limit", String(next.limit));
+      if (selectedId) sp.set("id", String(selectedId));
       const qs = sp.toString();
       router.replace(qs ? `?${qs}` : "/", { scroll: false });
     },
@@ -74,31 +80,37 @@ function HomeContent() {
     (next: ProductsParams) => {
       if (next.page === params.page) next.page = 1;
       setParams(next);
-      syncUrl(next);
+      syncUrl(next, selectedId);
     },
-    [syncUrl, params],
+    [syncUrl, params, selectedId],
   );
 
   const handlePageChange = useCallback(
     (page: number) => {
       const next = { ...params, page };
-      handleChange(next);
+      setParams(next);
+      syncUrl(next, selectedId);
     },
-    [params, handleChange],
+    [params, syncUrl, selectedId],
   );
 
   const handleLimitChange = useCallback(
     (limit: Limit) => {
       const next = { ...params, limit, page: 1 };
       setParams(next);
-      syncUrl(next);
+      syncUrl(next, selectedId);
     },
-    [params, syncUrl],
+    [params, syncUrl, selectedId],
   );
 
-  const handleSelect = useCallback((id: number) => {
-    setSelectedId((prev) => (prev === id ? null : id));
-  }, []);
+  const handleSelect = useCallback(
+    (id: number) => {
+      const next = selectedId === id ? null : id;
+      setSelectedId(next);
+      syncUrl(params, next);
+    },
+    [params, selectedId, syncUrl],
+  );
 
   const { data: response, isLoading, error } = useProducts(params);
   const { data: categories } = useCategories();
@@ -167,7 +179,7 @@ function HomeContent() {
         as="aside"
         style={{
           maxWidth: selectedId ? "600px" : "0px",
-          transition: "max-width 0.4s ease",
+          transition: "max-width 0.3s ease",
           overflow: selectedId ? undefined : "hidden",
           position: "sticky",
           top: 0,
@@ -176,7 +188,17 @@ function HomeContent() {
         borderLeftWidth={selectedId ? "1px" : "0px"}
         borderColor="border"
       >
-        <Box w="600px" h="100dvh" overflowY="auto" py={10} pl={6} pr={4}>
+        <Box
+          w="600px"
+          transition="transform 0.3s ease"
+          transform={selectedId ? "scaleX(1)" : "scaleX(0)"}
+          opacity={selectedId ? 1 : 0}
+          h="100dvh"
+          overflowY="auto"
+          py={10}
+          pl={6}
+          pr={4}
+        >
           <ProductDetails productId={selectedId} />
         </Box>
       </Box>
