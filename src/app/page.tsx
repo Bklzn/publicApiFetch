@@ -2,7 +2,15 @@
 
 import { Suspense, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Flex, Box, Heading, Text, HStack, VStack } from "@chakra-ui/react";
+import {
+  Flex,
+  Box,
+  Heading,
+  Text,
+  HStack,
+  VStack,
+  Spinner,
+} from "@chakra-ui/react";
 import { useProducts, useCategories } from "@/hooks/use-products";
 import { FilterBar } from "@/components/FilterBar";
 import { LimitSelect } from "@/components/LimitSelect";
@@ -115,7 +123,11 @@ function HomeContent() {
             categories={categories ?? []}
           />
 
-          {isLoading && <Text>Loading products...</Text>}
+          {isLoading && (
+            <Box display="flex" justifyContent="center" py={10}>
+              <Spinner />
+            </Box>
+          )}
 
           {error && (
             <Text color="red.500">Error: {(error as Error).message}</Text>
@@ -154,7 +166,7 @@ function HomeContent() {
       <Box
         as="aside"
         style={{
-          maxWidth: selectedId ? "30vw" : "0px",
+          maxWidth: selectedId ? "600px" : "0px",
           transition: "max-width 0.4s ease",
           overflow: selectedId ? undefined : "hidden",
           position: "sticky",
@@ -164,7 +176,7 @@ function HomeContent() {
         borderLeftWidth={selectedId ? "1px" : "0px"}
         borderColor="border"
       >
-        <Box w="30vw" h="100dvh" overflowY="auto" py={10} pl={6} pr={4}>
+        <Box w="600px" h="100dvh" overflowY="auto" py={10} pl={6} pr={4}>
           <ProductDetails productId={selectedId} />
         </Box>
       </Box>
