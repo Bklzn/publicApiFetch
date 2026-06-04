@@ -10,7 +10,9 @@ import {
   HStack,
   VStack,
   Spinner,
+  IconButton,
 } from "@chakra-ui/react";
+import { LuX } from "react-icons/lu";
 import { useProducts, useCategories } from "@/hooks/use-products";
 import { FilterBar } from "@/components/FilterBar";
 import { LimitSelect } from "@/components/LimitSelect";
@@ -23,6 +25,7 @@ import {
   type ProductsParams,
   type Limit,
 } from "@/lib/api";
+import { useCheckViewport } from "@/hooks/use-check-viewport";
 
 const DEFAULT_PARAMS: ProductsParams = {
   limit: 10,
@@ -59,6 +62,8 @@ function HomeContent() {
     const n = Number(raw);
     return Number.isFinite(n) && n > 0 ? n : null;
   });
+
+  const [isMobile] = useCheckViewport();
 
   const syncUrl = useCallback(
     (next: ProductsParams, selectedId: number | null) => {
@@ -155,7 +160,14 @@ function HomeContent() {
           ))}
 
           {response && (
-            <HStack align="center" justify="space-between">
+            <HStack
+              align="center"
+              justify="center"
+              flexWrap={"wrap-reverse"}
+              gap={20}
+              gapY={4}
+              marginX="auto"
+            >
               <PaginationBar
                 page={params.page ?? 1}
                 totalPages={totalPages}
@@ -177,29 +189,65 @@ function HomeContent() {
 
       <Box
         as="aside"
-        style={{
-          maxWidth: selectedId ? "600px" : "0px",
-          transition: "max-width 0.3s ease",
-          overflow: selectedId ? undefined : "hidden",
-          position: "sticky",
-          top: 0,
-          height: "100dvh",
-        }}
-        borderLeftWidth={selectedId ? "1px" : "0px"}
+        position={isMobile ? "fixed" : "sticky"}
+        top={isMobile ? undefined : 0}
+        bottom={isMobile ? 0 : undefined}
+        left={isMobile ? 0 : undefined}
+        right={isMobile ? 0 : undefined}
+        zIndex={isMobile ? "docked" : undefined}
+        h={isMobile ? "70%" : "100dvh"}
+        bg={isMobile ? "bg.panel" : undefined}
         borderColor="border"
+        pt={isMobile ? "50px" : 0}
+        style={{
+          ...(isMobile
+            ? {
+                transform: selectedId ? "translateY(0)" : "translateY(100%)",
+                transition: "transform 0.3s ease",
+                borderTopWidth: selectedId ? "1px" : "0px",
+                boxShadow: selectedId ? "0 -4px 20px rgba(0,0,0,0.15)" : "none",
+              }
+            : {
+                maxWidth: selectedId ? "600px" : "0px",
+                transition: "max-width 0.3s ease",
+                overflow: selectedId ? undefined : "hidden",
+                borderLeftWidth: selectedId ? "1px" : "0px",
+              }),
+        }}
       >
+        {isMobile && selectedId && (
+          <IconButton
+            position="absolute"
+            top={3}
+            right={3}
+            size="sm"
+            variant="ghost"
+            aria-label="Close"
+            onClick={() => handleSelect(selectedId)}
+          >
+            <LuX />
+          </IconButton>
+        )}
+
         <Box
-          w="600px"
-          transition="transform 0.3s ease"
-          transform={selectedId ? "scaleX(1)" : "scaleX(0)"}
-          opacity={selectedId ? 1 : 0}
-          h="100dvh"
+          w={isMobile ? "100%" : "600px"}
+          h="100%"
           overflowY="auto"
           py={10}
           pl={6}
           pr={4}
+          pt={isMobile ? 0 : 10}
+          style={{
+            ...(isMobile
+              ? {}
+              : {
+                  transition: "transform 0.3s ease",
+                  transform: selectedId ? "scaleX(1)" : "scaleX(0)",
+                  opacity: selectedId ? 1 : 0,
+                }),
+          }}
         >
-          <ProductDetails productId={selectedId} />
+          <ProductDetails key={selectedId} productId={selectedId} />
         </Box>
       </Box>
     </Flex>
