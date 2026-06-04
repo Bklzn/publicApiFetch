@@ -1,21 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchProducts, ProductsParams } from "@/lib/api";
+import { fetchProducts, fetchCategories, ProductsParams } from "@/lib/api";
 import { AllProducts } from "@/schemas/product";
 
-export const productKeys = {
-  all: ["response"] as const,
+const DEFAULTS: ProductsParams = {
+  limit: 10,
+  page: 1,
+  select: "id,title,category,thumbnail,price",
 };
 
 export function useProducts(params?: ProductsParams) {
+  const merged = { ...DEFAULTS, ...params };
+
   return useQuery({
-    queryKey: productKeys.all,
-    queryFn: (): Promise<AllProducts> =>
-      fetchProducts(
-        params ?? {
-          limit: 10,
-          page: 1,
-          select: "id,title,category,thumbnail,price",
-        },
-      ),
+    queryKey: ["products", merged],
+    queryFn: (): Promise<AllProducts> => fetchProducts(merged),
+  });
+}
+
+export function useCategories() {
+  return useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 5 * 60 * 1000,
   });
 }
