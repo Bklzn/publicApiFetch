@@ -1,10 +1,10 @@
 "use client";
 
 import { Box, Container, Heading, Text, VStack } from "@chakra-ui/react";
-import { usePosts } from "@/hooks/use-posts";
+import { useProducts } from "@/hooks/use-products";
 
 export default function Home() {
-  const { data: posts, isLoading, error } = usePosts();
+  const { data: response, isLoading, error } = useProducts();
 
   return (
     <Container maxW="4xl" py={10}>
@@ -17,18 +17,21 @@ export default function Home() {
           Next.js + TanStack Query + Chakra UI v3 + Zod
         </Text>
 
-        {isLoading && <Text>Loading posts...</Text>}
+        {isLoading && <Text>Loading products...</Text>}
 
         {error && (
-          <Text color="red.500">Error: {(error as Error).message}</Text>
+          <>
+            {console.log(error)}
+            <Text color="red.500">Error: {(error as Error).message}</Text>
+          </>
         )}
 
-        {posts?.map((post) => (
-          <Box key={post.id} p={4} borderWidth="1px" borderRadius="lg">
+        {response?.products?.map((product) => (
+          <Box key={product.id} p={4} borderWidth="1px" borderRadius="lg">
             <Heading size="md" mb={2}>
-              {post.title}
+              {product.title}
             </Heading>
-            <Text>{post.body}</Text>
+            <Text>{product.description}</Text>
           </Box>
         ))}
       </VStack>

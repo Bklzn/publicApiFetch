@@ -1,8 +1,8 @@
 import {
-  isServer,
+  environmentManager,
   QueryClient,
   defaultShouldDehydrateQuery,
-} from "@tanstack/react-query"
+} from "@tanstack/react-query";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -16,15 +16,15 @@ function makeQueryClient() {
           query.state.status === "pending",
       },
     },
-  })
+  });
 }
 
-let browserQueryClient: QueryClient | undefined
+let browserQueryClient: QueryClient | undefined;
 
 export function getQueryClient() {
-  if (isServer) {
-    return makeQueryClient()
+  if (environmentManager.isServer()) {
+    return makeQueryClient();
   }
-  if (!browserQueryClient) browserQueryClient = makeQueryClient()
-  return browserQueryClient
+  if (!browserQueryClient) browserQueryClient = makeQueryClient();
+  return browserQueryClient;
 }
