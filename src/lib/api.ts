@@ -36,7 +36,7 @@ export function parseLimit(raw: string | null, fallback: Limit): Limit {
     : fallback;
 }
 
-function buildQueryString(params: ProductsParams): string {
+export function buildQueryString(params: ProductsParams): string {
   const pairs: string[] = [];
   if (params.limit != null) pairs.push(`limit=${params.limit}`);
   const skip =
