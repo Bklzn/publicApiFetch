@@ -1,6 +1,8 @@
 "use client";
 
-import { Button, HStack, Text } from "@chakra-ui/react";
+import { useCheckViewport } from "@/hooks/use-check-viewport";
+import { ButtonGroup, IconButton, Pagination } from "@chakra-ui/react";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 const RANGE = 2;
 
@@ -10,69 +12,41 @@ type Props = {
   onChange: (page: number) => void;
 };
 
-function range(start: number, end: number): number[] {
-  const arr: number[] = [];
-  for (let i = start; i <= end; i++) arr.push(i);
-  return arr;
-}
-
 export function PaginationBar({ page, totalPages, onChange }: Props) {
-  const start = Math.max(1, page - RANGE);
-  const end = Math.min(totalPages, page + RANGE);
-  const pages = range(start, end);
-
+  const [isMobile] = useCheckViewport();
   return (
-    <HStack gap={1} justify="center">
-      <Button
-        size="sm"
-        variant="ghost"
-        disabled={page <= 1}
-        onClick={() => onChange(page - 1)}
-      >
-        Prev
-      </Button>
+    <Pagination.Root
+      count={totalPages}
+      pageSize={1}
+      defaultPage={page}
+      siblingCount={RANGE}
+      onPageChange={(p) => onChange(p.page)}
+    >
+      <ButtonGroup variant="ghost" size="sm">
+        <Pagination.PrevTrigger asChild>
+          <IconButton>
+            <LuChevronLeft />
+          </IconButton>
+        </Pagination.PrevTrigger>
 
-      {start > 1 && (
-        <>
-          <Button size="sm" variant="ghost" onClick={() => onChange(1)}>
-            1
-          </Button>
-          {start > 2 && <Text px={1}>...</Text>}
-        </>
-      )}
+        {isMobile ? (
+          <Pagination.PageText />
+        ) : (
+          <Pagination.Items
+            render={(page) => (
+              <IconButton variant={{ base: "ghost", _selected: "solid" }}>
+                {page.value}
+              </IconButton>
+            )}
+          />
+        )}
 
-      {pages.map((p) => (
-        <Button
-          key={p}
-          size="sm"
-          variant={p === page ? "solid" : "ghost"}
-          onClick={() => onChange(p)}
-        >
-          {p}
-        </Button>
-      ))}
-
-      {end < totalPages && (
-        <>
-          {end < totalPages - 1 && <Text px={1}>...</Text>}
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => onChange(totalPages)}
-          >
-            {totalPages}
-          </Button>
-        </>
-      )}
-
-      <Button
-        size="sm"
-        variant="ghost"
-        disabled={page >= totalPages}
-        onClick={() => onChange(page + 1)}
-      >
-        Next
-      </Button>
-    </HStack>
+        <Pagination.NextTrigger asChild>
+          <IconButton>
+            <LuChevronRight />
+          </IconButton>
+        </Pagination.NextTrigger>
+      </ButtonGroup>
+    </Pagination.Root>
   );
 }

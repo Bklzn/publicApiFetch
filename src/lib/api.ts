@@ -8,7 +8,7 @@ import {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
-export type SortByField = "title" | "category" | "price";
+export type SortByField = "default" | "title" | "category" | "price";
 
 export type ProductsParams = {
   limit?: number;

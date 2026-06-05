@@ -1,7 +1,8 @@
 "use client";
 
-import { NativeSelect, Field, Text } from "@chakra-ui/react";
+import { Select, Portal, createListCollection } from "@chakra-ui/react";
 import { VALID_LIMITS, type Limit } from "@/lib/api";
+import { useState } from "react";
 
 type Props = {
   value: Limit;
@@ -9,22 +10,45 @@ type Props = {
 };
 
 export function LimitSelect({ value, onChange }: Props) {
+  const limitOptions = createListCollection({
+    items: VALID_LIMITS.map(String),
+  });
+  const [limit, setLimit] = useState([value.toString()]);
+
+  console.log(limit, limitOptions);
+
   return (
-    <Field.Root orientation="horizontal" gap={2}>
-      <Text fontSize="sm">Showing</Text>
-      <NativeSelect.Root>
-        <NativeSelect.Field
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value) as Limit)}
-          paddingInline={"10px"}
-        >
-          {VALID_LIMITS.map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
-        </NativeSelect.Field>
-      </NativeSelect.Root>
-    </Field.Root>
+    <Select.Root
+      minW="60px"
+      flexGrow={1}
+      collection={limitOptions}
+      value={limit}
+      onValueChange={(e) => {
+        setLimit(e.value);
+        onChange(Number(e.value) as Limit);
+      }}
+    >
+      <Select.HiddenSelect />
+      <Select.Control>
+        <Select.Trigger>
+          <Select.ValueText placeholder="-" />
+        </Select.Trigger>
+        <Select.IndicatorGroup>
+          <Select.Indicator />
+        </Select.IndicatorGroup>
+      </Select.Control>
+      <Portal>
+        <Select.Positioner>
+          <Select.Content>
+            {limitOptions.items.map((limit) => (
+              <Select.Item item={limit} key={limit}>
+                {limit}
+                <Select.ItemIndicator />
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Positioner>
+      </Portal>
+    </Select.Root>
   );
 }

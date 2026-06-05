@@ -1,10 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Input, NativeSelect, HStack, Field } from "@chakra-ui/react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import {
+  Input,
+  HStack,
+  Field,
+  Select,
+  createListCollection,
+  Portal,
+  Button,
+} from "@chakra-ui/react";
+import { FaSortAmountDown, FaSortAmountDownAlt } from "react-icons/fa";
 import type { ProductsParams, SortByField } from "@/lib/api";
 
 const SORT_OPTIONS: { label: string; value: SortByField }[] = [
+  { label: "Default", value: "default" },
   { label: "Title", value: "title" },
   { label: "Category", value: "category" },
   { label: "Price", value: "price" },
@@ -20,6 +30,31 @@ export function FilterBar({ params, onChange, categories }: Props) {
   const [search, setSearch] = useState(params.q ?? "");
   const paramsRef = useRef(params);
   const onChangeRef = useRef(onChange);
+  const sortOptions = createListCollection({
+    items: SORT_OPTIONS,
+  });
+  const [sortBy, setSortBy] = useState([params.sortBy ?? "default"]);
+  const [order, setOrder] = useState(params.order ?? "asc");
+
+  const categoriesSelect = useMemo(
+    () =>
+      createListCollection({
+        items: ["all", ...categories],
+      }),
+    [categories],
+  );
+  const [categoryValue, setCategoryValue] = useState([
+    params.category ?? "all",
+  ]);
+
+  useEffect(() => {
+    onChangeRef.current({
+      ...paramsRef.current,
+      category: categoryValue[0] === "all" ? undefined : categoryValue[0],
+      sortBy: sortBy[0] === "default" ? undefined : sortBy[0],
+      order: sortBy[0] === "default" ? undefined : order,
+    });
+  }, [categoryValue, sortBy, order]);
 
   useEffect(() => {
     paramsRef.current = params;
@@ -64,73 +99,87 @@ export function FilterBar({ params, onChange, categories }: Props) {
         />
       </Field.Root>
 
-      <Field.Root
+      <Select.Root
+        minW="200px"
+        flexGrow={1}
+        width="auto"
+        collection={categoriesSelect}
+        value={categoryValue}
+        onValueChange={(e) => setCategoryValue(e.value)}
         disabled={search.length > 0}
-        minW="200px"
-        width="auto"
-        display="inline-flex"
-        flexGrow={1}
       >
-        <Field.Label>Category</Field.Label>
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            value={params.category ?? ""}
-            onChange={(e) =>
-              onChange({ ...params, category: e.target.value || undefined })
-            }
-          >
-            <option value="">All</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </NativeSelect.Field>
-        </NativeSelect.Root>
-      </Field.Root>
+        <Select.HiddenSelect />
+        <Select.Label>Category</Select.Label>
+        <Select.Control>
+          <Select.Trigger>
+            <Select.ValueText placeholder="Choose a category" />
+          </Select.Trigger>
+          <Select.IndicatorGroup>
+            <Select.Indicator />
+          </Select.IndicatorGroup>
+        </Select.Control>
+        <Portal>
+          <Select.Positioner>
+            <Select.Content>
+              {categoriesSelect.items.map((category) => (
+                <Select.Item item={category} key={category}>
+                  {category}
+                  <Select.ItemIndicator />
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
+        </Portal>
+      </Select.Root>
 
-      <Field.Root minW="200px" width="auto" display="inline-flex" flexGrow={1}>
-        <Field.Label>Sort by</Field.Label>
-        <NativeSelect.Root>
-          <NativeSelect.Field
-            value={params.sortBy ?? ""}
-            onChange={(e) =>
-              onChange({
-                ...params,
-                sortBy: (e.target.value || undefined) as SortByField,
-              })
+      <HStack minW="200px" flexGrow={1}>
+        <Select.Root
+          width="100%"
+          collection={sortOptions}
+          value={sortBy}
+          onValueChange={(e) => {
+            setSortBy(e.value as SortByField[]);
+            if (e.value[0] === "default") {
+              setOrder("asc");
             }
-          >
-            <option value="">None</option>
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </NativeSelect.Field>
-        </NativeSelect.Root>
-      </Field.Root>
-
-      <Field.Root
-        minW="200px"
-        width="auto"
-        display="inline-flex"
-        style={params.sortBy ? {} : { opacity: 0, pointerEvents: "none" }}
-        flexGrow={1}
-      >
-        <Field.Label>Order</Field.Label>
-        <NativeSelect.Root minW="120px">
-          <NativeSelect.Field
-            value={params.order ?? "asc"}
-            onChange={(e) =>
-              onChange({ ...params, order: e.target.value as "asc" | "desc" })
-            }
-          >
-            <option value="asc">Asc</option>
-            <option value="desc">Desc</option>
-          </NativeSelect.Field>
-        </NativeSelect.Root>
-      </Field.Root>
+          }}
+        >
+          <Select.HiddenSelect />
+          <Select.Label>Sort by</Select.Label>
+          <Select.Control>
+            <Select.Trigger>
+              <Select.ValueText placeholder="-" />
+            </Select.Trigger>
+            <Select.IndicatorGroup>
+              <Select.Indicator />
+            </Select.IndicatorGroup>
+          </Select.Control>
+          <Portal>
+            <Select.Positioner>
+              <Select.Content>
+                {sortOptions.items.map((sort) => (
+                  <Select.Item item={sort} key={sort.value}>
+                    {sort.label}
+                    <Select.ItemIndicator />
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Portal>
+        </Select.Root>
+        <Button
+          variant="ghost"
+          mt="auto"
+          onClick={() => setOrder(order === "asc" ? "desc" : "asc")}
+          disabled={sortBy[0] === "default"}
+        >
+          {!!order && order === "asc" ? (
+            <FaSortAmountDownAlt />
+          ) : (
+            <FaSortAmountDown />
+          )}
+        </Button>
+      </HStack>
     </HStack>
   );
 }

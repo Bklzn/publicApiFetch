@@ -1,4 +1,4 @@
-import { HStack, Box, Heading, Text, Image } from "@chakra-ui/react";
+import { HStack, Box, Heading, Text, Image, Badge } from "@chakra-ui/react";
 import type { SingleProductInAllProducts } from "@/schemas/product";
 
 export function ProductItem({
@@ -29,9 +29,9 @@ export function ProductItem({
       />
       <Box flex={1}>
         <Heading size="sm">{product.title}</Heading>
-        <Text fontSize="sm" color="fg.muted">
+        <Badge fontSize="sm" colorPalette="blue">
           {product.category}
-        </Text>
+        </Badge>
       </Box>
       <Text fontWeight="bold">${product.price}</Text>
     </HStack>

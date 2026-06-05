@@ -126,7 +126,7 @@ function HomeContent() {
 
   return (
     <Flex maxW="100%" mx={0} px={4}>
-      <Box flex="1" minW={0} maxW="4xl" marginX="auto" paddingRight={4} py={10}>
+      <Box flex="1" minW={0} maxW="4xl" marginX="auto" py={10}>
         <VStack gap={6} align="stretch">
           <Heading size="3xl">publicApiFetch</Heading>
 
@@ -189,6 +189,7 @@ function HomeContent() {
 
       <Box
         as="aside"
+        marginLeft={isMobile ? "0px" : 4}
         position={isMobile ? "fixed" : "sticky"}
         top={isMobile ? undefined : 0}
         bottom={isMobile ? 0 : undefined}
