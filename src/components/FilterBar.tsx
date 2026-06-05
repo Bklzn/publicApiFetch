@@ -49,20 +49,30 @@ export function FilterBar({ params, onChange, categories }: Props) {
   }, [search]);
 
   return (
-    <HStack gap={4} flexDirection="row" alignItems="flex-end">
-      <Field.Root>
+    <HStack
+      gap={4}
+      flexDirection="row"
+      alignItems="space-between"
+      flexWrap="wrap"
+    >
+      <Field.Root minW="200px" flexGrow={1} width="auto">
         <Field.Label>Search</Field.Label>
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          maxW="200px"
           placeholder="Search products..."
         />
       </Field.Root>
 
-      <Field.Root disabled={search.length > 0}>
+      <Field.Root
+        disabled={search.length > 0}
+        minW="200px"
+        width="auto"
+        display="inline-flex"
+        flexGrow={1}
+      >
         <Field.Label>Category</Field.Label>
-        <NativeSelect.Root maxW="200px">
+        <NativeSelect.Root>
           <NativeSelect.Field
             value={params.category ?? ""}
             onChange={(e) =>
@@ -79,13 +89,16 @@ export function FilterBar({ params, onChange, categories }: Props) {
         </NativeSelect.Root>
       </Field.Root>
 
-      <Field.Root>
+      <Field.Root minW="200px" width="auto" display="inline-flex" flexGrow={1}>
         <Field.Label>Sort by</Field.Label>
-        <NativeSelect.Root maxW="150px">
+        <NativeSelect.Root>
           <NativeSelect.Field
             value={params.sortBy ?? ""}
             onChange={(e) =>
-              onChange({ ...params, sortBy: (e.target.value || undefined) as SortByField })
+              onChange({
+                ...params,
+                sortBy: (e.target.value || undefined) as SortByField,
+              })
             }
           >
             <option value="">None</option>
@@ -98,24 +111,26 @@ export function FilterBar({ params, onChange, categories }: Props) {
         </NativeSelect.Root>
       </Field.Root>
 
-      {
-        <Field.Root
-          style={params.sortBy ? {} : { opacity: 0, pointerEvents: "none" }}
-        >
-          <Field.Label>Order</Field.Label>
-          <NativeSelect.Root maxW="120px">
-            <NativeSelect.Field
-              value={params.order ?? "asc"}
-              onChange={(e) =>
-                onChange({ ...params, order: e.target.value as "asc" | "desc" })
-              }
-            >
-              <option value="asc">Asc</option>
-              <option value="desc">Desc</option>
-            </NativeSelect.Field>
-          </NativeSelect.Root>
-        </Field.Root>
-      }
+      <Field.Root
+        minW="200px"
+        width="auto"
+        display="inline-flex"
+        style={params.sortBy ? {} : { opacity: 0, pointerEvents: "none" }}
+        flexGrow={1}
+      >
+        <Field.Label>Order</Field.Label>
+        <NativeSelect.Root minW="120px">
+          <NativeSelect.Field
+            value={params.order ?? "asc"}
+            onChange={(e) =>
+              onChange({ ...params, order: e.target.value as "asc" | "desc" })
+            }
+          >
+            <option value="asc">Asc</option>
+            <option value="desc">Desc</option>
+          </NativeSelect.Field>
+        </NativeSelect.Root>
+      </Field.Root>
     </HStack>
   );
 }
