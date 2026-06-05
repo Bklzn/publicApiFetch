@@ -150,6 +150,14 @@ function HomeContent() {
             <Text color="red.500">Error: {(error as Error).message}</Text>
           )}
 
+          {response && response.total === 0 && (
+            <VStack my={10}>
+              <Heading size="3xl" color="fg.muted">
+                No products found
+              </Heading>
+              <Text color="fg.muted">Try changing the filters</Text>
+            </VStack>
+          )}
           {response?.products?.map((product) => (
             <ProductItem
               key={product.id}
