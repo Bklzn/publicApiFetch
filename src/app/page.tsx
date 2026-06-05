@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useCallback } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Flex,
   Box,
@@ -50,8 +50,6 @@ function parseParams(sp: URLSearchParams | null): ProductsParams {
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
-
   const [params, setParams] = useState<ProductsParams>(() =>
     parseParams(searchParams),
   );
@@ -76,9 +74,10 @@ function HomeContent() {
       if (next.limit && next.limit !== 10) sp.set("limit", String(next.limit));
       if (selectedId) sp.set("id", String(selectedId));
       const qs = sp.toString();
-      router.replace(qs ? `?${qs}` : "/", { scroll: false });
+      const url = qs ? `?${qs}` : window.location.pathname;
+      window.history.replaceState(null, "", url);
     },
-    [router],
+    [],
   );
 
   const handleChange = useCallback(

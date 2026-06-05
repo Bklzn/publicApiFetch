@@ -43,11 +43,14 @@ export function FilterBar({ params, onChange, categories }: Props) {
       }),
     [categories],
   );
+  const initialRenderRef = useRef(true);
+
   const [categoryValue, setCategoryValue] = useState([
     params.category ?? "all",
   ]);
 
   useEffect(() => {
+    if (initialRenderRef.current) return;
     onChangeRef.current({
       ...paramsRef.current,
       category: categoryValue[0] === "all" ? undefined : categoryValue[0],
@@ -72,6 +75,7 @@ export function FilterBar({ params, onChange, categories }: Props) {
   }, [search]);
 
   useEffect(() => {
+    if (initialRenderRef.current) return;
     if (search.length === 0 || search.length >= 3) {
       const timer = setTimeout(() => {
         onChangeRef.current({
@@ -82,6 +86,10 @@ export function FilterBar({ params, onChange, categories }: Props) {
       return () => clearTimeout(timer);
     }
   }, [search]);
+
+  useEffect(() => {
+    initialRenderRef.current = false;
+  }, []);
 
   return (
     <HStack
