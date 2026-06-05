@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## About
+
+Product catalog viewer built with **Next.js 16**, **TanStack Query v5**, **Chakra UI v3**, and **Zod**. Fetches products from [dummyjson.com](https://dummyjson.com/products) with search, category filtering, sorting, and pagination. Features a responsive product detail drawer with URL-synced state (`?id=`).
+
+The app is deployed and you can view it [here](https://bklzn.github.io/publicApiFetch/)
+
 ## Getting Started
 
 First, run the development server:
